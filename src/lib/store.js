@@ -8,6 +8,7 @@ import {
   limit,
   onSnapshot,
   serverTimestamp,
+  documentId,
 } from 'firebase/firestore';
 import { db } from '../firebase.js';
 
@@ -53,7 +54,7 @@ export function saveDay(uid, entry, dateKey = todayKey()) {
 }
 
 export function watchRecentWeighIns(uid, count, cb, onError) {
-  const q = query(collection(db, 'users', uid, 'weighIns'), orderBy('__name__', 'desc'), limit(count));
+  const q = query(collection(db, 'users', uid, 'weighIns'), orderBy(documentId(), 'desc'), limit(count));
   return onSnapshot(
     q,
     (snap) => {
@@ -65,7 +66,7 @@ export function watchRecentWeighIns(uid, count, cb, onError) {
 }
 
 export function watchRecentDays(uid, count, cb, onError) {
-  const q = query(collection(db, 'users', uid, 'days'), orderBy('__name__', 'desc'), limit(count));
+  const q = query(collection(db, 'users', uid, 'days'), orderBy(documentId(), 'desc'), limit(count));
   return onSnapshot(
     q,
     (snap) => cb(snap.docs.map((d) => ({ date: d.id, ...d.data() }))),
