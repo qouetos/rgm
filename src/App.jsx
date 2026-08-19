@@ -17,6 +17,7 @@ const TABS = [
 export default function App() {
   const [authState, setAuthState] = useState('loading'); // 'loading' | 'signed-out' | user
   const [signInError, setSignInError] = useState('');
+  const [linkCopied, setLinkCopied] = useState(false);
   const [tab, setTab] = useState('dashboard');
   const [profile, setProfile] = useState(null);
   const [weighIns, setWeighIns] = useState([]);
@@ -66,18 +67,21 @@ export default function App() {
 
           {isStandalone ? (
             <>
-              <a
-                href={window.location.href}
-                target="_blank"
-                rel="noopener"
+              <button
                 className="btn-primary"
-                style={{ width: 'auto', padding: '14px 28px', display: 'inline-block', textDecoration: 'none' }}
+                style={{ width: 'auto', padding: '14px 28px' }}
+                onClick={() => {
+                  navigator.clipboard?.writeText(window.location.href);
+                  setLinkCopied(true);
+                  setTimeout(() => setLinkCopied(false), 2500);
+                }}
               >
-                Ouvrir dans Safari pour te connecter
-              </a>
+                {linkCopied ? 'Lien copié ✓' : 'Copier le lien'}
+              </button>
               <div style={{ fontSize: 12.5, color: 'var(--text-soft)', maxWidth: 280 }}>
-                iOS ne permet pas de se connecter avec Google depuis l'app installée. Connecte-toi une fois dans Safari,
-                puis reviens sur cette icône — la session sera déjà là.
+                iOS ne permet pas de se connecter avec Google depuis l'app installée, et n'ouvre pas Safari
+                automatiquement depuis ici. Copie le lien, ouvre Safari, colle-le, connecte-toi une fois — puis reviens
+                sur cette icône, la session sera déjà là.
               </div>
             </>
           ) : (
