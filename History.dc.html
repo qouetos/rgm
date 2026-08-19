@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+  <style>
+    :root {
+      --bg: oklch(97% 0.015 95);
+      --card: oklch(99% 0.008 95);
+      --text: oklch(24% 0.02 95);
+      --text-soft: oklch(48% 0.02 95);
+      --accent: oklch(58% 0.09 150);
+      --accent-dark: oklch(42% 0.08 150);
+      --accent-soft: oklch(93% 0.03 150);
+      --accent2: oklch(68% 0.11 45);
+      --border: oklch(89% 0.015 95);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; background: oklch(93% 0.01 250); color: var(--text); }
+    a { color: var(--accent); } a:hover { color: var(--accent-dark); }
+  </style>
+</helmet>
+
+<div style="display:flex; align-items:center; justify-content:center; width:100%; min-height:100%; padding:40px 0;">
+  <div style="width:390px; height:844px; border-radius:44px; border:1px solid var(--border); background: var(--bg); overflow:hidden; box-shadow: 0 20px 60px oklch(30% 0.02 260 / 0.18); display:flex; flex-direction:column;">
+
+    <div style="flex:1; overflow:hidden; padding:52px 22px 0 22px; display:flex; flex-direction:column; gap:16px;">
+
+      <div style="font-size:20px; font-weight:800;">Historique</div>
+
+      <div style="background: var(--card); border:1px solid var(--border); border-radius:22px; padding:18px 18px 8px 18px; display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between;">
+          <div style="font-size:12px; font-weight:600; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.03em;">Moyenne cette semaine</div>
+          <div style="font-size:16px; font-weight:800;">123,7 kg</div>
+        </div>
+
+        <svg width="100%" height="130" viewBox="0 0 316 130" fill="none" style="overflow:visible;">
+          <line x1="0" y1="110" x2="316" y2="110" stroke="var(--border)" stroke-width="1"/>
+          <line x1="0" y1="60" x2="316" y2="60" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
+          <line x1="0" y1="10" x2="316" y2="10" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"/>
+          <polyline points="0,10 52,22 105,34 158,48 210,64 263,80 316,96" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="0" cy="10" r="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+          <circle cx="316" cy="96" r="5" fill="var(--accent)"/>
+        </svg>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-soft); font-weight:500; padding-bottom:12px;">
+          <span>S1</span><span>S2</span><span>S3</span><span>S4</span><span>S5</span><span>S6</span><span>Auj.</span>
+        </div>
+      </div>
+
+      <div style="font-size:12.5px; font-weight:700; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.04em;">Derniers jours</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; overflow-y:auto; padding-bottom:16px;">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; background: var(--card); border:1px solid var(--border); border-radius:16px; padding:13px 16px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:36px; height:36px; border-radius:11px; background: var(--accent-soft); display:flex; align-items:center; justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="var(--accent-dark)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <div style="font-size:13.5px; font-weight:700;">Aujourd'hui</div>
+              <div style="font-size:11.5px; color:var(--text-soft);">jeu. 22 août</div>
+            </div>
+          </div>
+          <div style="font-size:15px; font-weight:800;">123,4 kg</div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; background: var(--card); border:1px solid var(--border); border-radius:16px; padding:13px 16px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:36px; height:36px; border-radius:11px; background: var(--accent-soft); display:flex; align-items:center; justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="var(--accent-dark)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <div style="font-size:13.5px; font-weight:700;">Hier</div>
+              <div style="font-size:11.5px; color:var(--text-soft);">mer. 21 août</div>
+            </div>
+          </div>
+          <div style="font-size:15px; font-weight:800;">123,6 kg</div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; background: var(--card); border:1px solid var(--border); border-radius:16px; padding:13px 16px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:36px; height:36px; border-radius:11px; background: var(--accent-soft); display:flex; align-items:center; justify-content:center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6 9 17l-5-5" stroke="var(--accent-dark)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <div style="font-size:13.5px; font-weight:700;">Mardi</div>
+              <div style="font-size:11.5px; color:var(--text-soft);">mar. 20 août</div>
+            </div>
+          </div>
+          <div style="font-size:15px; font-weight:800;">124,0 kg</div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; background: var(--card); border:1px dashed var(--border); border-radius:16px; padding:13px 16px; opacity:0.6;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:36px; height:36px; border-radius:11px; background: oklch(94% 0.01 95); display:flex; align-items:center; justify-content:center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="var(--text-soft)" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div style="display:flex; flex-direction:column;">
+              <div style="font-size:13.5px; font-weight:700;">Lundi</div>
+              <div style="font-size:11.5px; color:var(--text-soft);">journée non encodée</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="flex-shrink:0; display:flex; justify-content:space-around; align-items:center; padding:12px 12px 22px 12px; border-top:1px solid var(--border); background: var(--card);">
+      <div style="display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--text-soft);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11 12 4l8 7M6 10v9h12v-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="font-size:10.5px; font-weight:600;">Accueil</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--text-soft);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div style="font-size:10.5px; font-weight:600;">Encoder</div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--accent-dark);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M11 19V5M18 19v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div style="font-size:10.5px; font-weight:700;">Historique</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "artboards": [
+    { "file": "Home.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "1. Ajout à l'écran d'accueil" },
+    { "file": "Main.dc.html", "x": 450, "y": 0, "w": 390, "h": 844, "title": "2. Tableau de bord" },
+    { "file": "Encode.dc.html", "x": 900, "y": 0, "w": 390, "h": 844, "title": "3. Encodage du jour" },
+    { "file": "History.dc.html", "x": 1350, "y": 0, "w": 390, "h": 844, "title": "4. Historique" },
+    { "file": "Reminder.dc.html", "x": 1800, "y": 0, "w": 390, "h": 844, "title": "5. Rappel quotidien" }
+  ],
+  "annotations": [
+    { "id": "note-concept", "x": 0, "y": -170, "w": 420, "text": "Cap — esquisse d'une web app de suivi de perte de poids.\nPensée comme un raccourci PWA (ajout à l'écran d'accueil), pas une app store. Auto-hébergeable." },
+    { "id": "note-encode", "x": 900, "y": -170, "w": 390, "text": "Encodage = cases à cocher sur des habitudes réelles (œufs, tupperware poulet-riz-courgette, skyr...), pas de pesée d'aliments ni de compteur de calories." },
+    { "id": "note-tone", "x": 1800, "y": -170, "w": 390, "text": "Ton volontairement sobre et non culpabilisant : pas de streak agressif, un jour manqué reste neutre (voir Historique, \"Lundi\")." }
+  ],
+  "launch": { "view": "canvas" }
+}
