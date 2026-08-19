@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
+    expose:
       - "80"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost/healthz"]
