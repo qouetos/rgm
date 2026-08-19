@@ -1,15 +1,4 @@
-import {
-  doc,
-  setDoc,
-  getDoc,
-  collection,
-  query,
-  orderBy,
-  limit,
-  onSnapshot,
-  serverTimestamp,
-  documentId,
-} from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.js';
 
 export const todayKey = (d = new Date()) => d.toISOString().slice(0, 10);
@@ -53,12 +42,17 @@ export function saveDay(uid, entry, dateKey = todayKey()) {
   return setDoc(dayRef(uid, dateKey), { ...entry, loggedAt: serverTimestamp() }, { merge: true });
 }
 
+// No orderBy/limit in the query itself — sorting client-side avoids needing
+// a Firestore index entirely, which is fine at this scale (one user, a few
+// hundred documents over 8 months).
 export function watchRecentWeighIns(uid, count, cb, onError) {
-  const q = query(collection(db, 'users', uid, 'weighIns'), orderBy(documentId(), 'desc'), limit(count));
   return onSnapshot(
-    q,
+    collection(db, 'users', uid, 'weighIns'),
     (snap) => {
-      const rows = snap.docs.map((d) => ({ date: d.id, ...d.data() })).reverse();
+      const rows = snap.docs
+        .map((d) => ({ date: d.id, ...d.data() }))
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .slice(-count);
       cb(rows);
     },
     (err) => onError?.(err)
@@ -66,10 +60,15 @@ export function watchRecentWeighIns(uid, count, cb, onError) {
 }
 
 export function watchRecentDays(uid, count, cb, onError) {
-  const q = query(collection(db, 'users', uid, 'days'), orderBy(documentId(), 'desc'), limit(count));
   return onSnapshot(
-    q,
-    (snap) => cb(snap.docs.map((d) => ({ date: d.id, ...d.data() }))),
+    collection(db, 'users', uid, 'days'),
+    (snap) => {
+      const rows = snap.docs
+        .map((d) => ({ date: d.id, ...d.data() }))
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .slice(0, count);
+      cb(rows);
+    },
     (err) => onError?.(err)
   );
 }
