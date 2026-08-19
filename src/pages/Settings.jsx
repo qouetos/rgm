@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { saveProfile } from '../lib/store.js';
+import { saveProfile, requestTestNotification } from '../lib/store.js';
 import { enableReminders } from '../lib/notifications.js';
 
 export default function Settings({ uid, email, profile }) {
@@ -10,6 +10,7 @@ export default function Settings({ uid, email, profile }) {
   const [profileError, setProfileError] = useState('');
   const [notifStatus, setNotifStatus] = useState(profile?.fcmToken ? 'on' : 'off');
   const [notifError, setNotifError] = useState('');
+  const [testStatus, setTestStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
 
   async function handleSaveProfile() {
     setSavingProfile(true);
@@ -100,6 +101,22 @@ export default function Settings({ uid, email, profile }) {
           {notifStatus === 'on' ? 'Rappels activés ✓' : notifStatus === 'requesting' ? 'Activation...' : 'Activer les rappels'}
         </button>
         {notifError && <div style={{ fontSize: 12.5, color: 'oklch(50% 0.15 30)' }}>{notifError}</div>}
+
+        {notifStatus === 'on' && (
+          <button
+            className="chip"
+            style={{ textAlign: 'center', padding: '12px 14px' }}
+            disabled={testStatus === 'sending'}
+            onClick={async () => {
+              setTestStatus('sending');
+              await requestTestNotification(uid);
+              setTestStatus('sent');
+              setTimeout(() => setTestStatus('idle'), 3000);
+            }}
+          >
+            {testStatus === 'sent' ? 'Envoyée ✓ (arrive sous quelques secondes)' : testStatus === 'sending' ? 'Envoi...' : 'Tester une notification'}
+          </button>
+        )}
       </div>
     </div>
   );

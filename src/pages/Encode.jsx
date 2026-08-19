@@ -70,14 +70,16 @@ function OtherFoodSearch({ onPick }) {
   );
 }
 
-export default function Encode({ uid, todayDay, todayWeighIn }) {
-  const [weight, setWeight] = useState(todayWeighIn?.weight ?? '');
-  const [morning, setMorning] = useState(todayDay?.morning ?? null);
-  const [lunch, setLunch] = useState(todayDay?.lunch ?? null);
-  const [snack, setSnack] = useState(todayDay?.snack ?? null);
-  const [evening, setEvening] = useState(todayDay?.evening ?? null);
-  const [eveningOther, setEveningOther] = useState(todayDay?.eveningOther ?? '');
-  const [walked, setWalked] = useState(todayDay?.walked ?? false);
+// Keyed by date in the parent so switching days remounts fresh, seeded from
+// that day's existing entry (or blank if none) — no manual state syncing.
+function DayForm({ uid, date, dayData, weighInData }) {
+  const [weight, setWeight] = useState(weighInData?.weight ?? '');
+  const [morning, setMorning] = useState(dayData?.morning ?? null);
+  const [lunch, setLunch] = useState(dayData?.lunch ?? null);
+  const [snack, setSnack] = useState(dayData?.snack ?? null);
+  const [evening, setEvening] = useState(dayData?.evening ?? null);
+  const [eveningOther, setEveningOther] = useState(dayData?.eveningOther ?? '');
+  const [walked, setWalked] = useState(dayData?.walked ?? false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -85,12 +87,11 @@ export default function Encode({ uid, todayDay, todayWeighIn }) {
   async function handleSave() {
     setSaving(true);
     setSaveError('');
-    const key = todayKey();
     try {
       if (weight !== '' && !Number.isNaN(Number(weight))) {
-        await saveWeighIn(uid, Number(weight), key);
+        await saveWeighIn(uid, Number(weight), date);
       }
-      await saveDay(uid, { morning, lunch, snack, evening, eveningOther, walked }, key);
+      await saveDay(uid, { morning, lunch, snack, evening, eveningOther, walked }, date);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
@@ -101,17 +102,10 @@ export default function Encode({ uid, todayDay, todayWeighIn }) {
   }
 
   return (
-    <div className="screen">
-      <div>
-        <div style={{ fontSize: 13, color: 'var(--text-soft)', fontWeight: 500 }}>
-          {new Date().toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </div>
-        <div style={{ fontSize: 20, fontWeight: 800 }}>Ta journée</div>
-      </div>
-
+    <>
       <div className="card" style={{ borderRadius: 18, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-soft)' }}>Poids ce matin</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-soft)' }}>Poids</div>
           <div style={{ fontSize: 11.5, color: 'var(--text-soft)' }}>optionnel</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, background: 'var(--accent-soft)', borderRadius: 12, padding: '8px 14px' }}>
@@ -150,7 +144,7 @@ export default function Encode({ uid, todayDay, todayWeighIn }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button className="btn-primary" disabled={saving} onClick={handleSave}>
-          {saving ? 'Enregistrement...' : saved ? 'Enregistré ✓' : 'Valider ma journée'}
+          {saving ? 'Enregistrement...' : saved ? 'Enregistré ✓' : 'Valider cette journée'}
         </button>
         <div style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--text-soft)' }}>
           Pas besoin d'être parfait, juste présent.
@@ -161,6 +155,38 @@ export default function Encode({ uid, todayDay, todayWeighIn }) {
           </div>
         )}
       </div>
+    </>
+  );
+}
+
+export default function Encode({ uid, days, weighIns }) {
+  const [selectedDate, setSelectedDate] = useState(todayKey());
+  const isToday = selectedDate === todayKey();
+  const dayData = days.find((d) => d.date === selectedDate);
+  const weighInData = weighIns.find((w) => w.date === selectedDate);
+
+  return (
+    <div className="screen">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div>
+          <div style={{ fontSize: 13, color: 'var(--text-soft)', fontWeight: 500 }}>
+            {isToday ? "Aujourd'hui" : new Date(selectedDate + 'T00:00:00').toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 800 }}>Ta journée</div>
+        </div>
+        <input
+          type="date"
+          value={selectedDate}
+          max={todayKey()}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          style={{
+            border: '1.5px solid var(--border)', borderRadius: 12, padding: '8px 10px',
+            fontSize: 13, fontFamily: 'inherit', color: 'var(--text)', background: 'var(--card)',
+          }}
+        />
+      </div>
+
+      <DayForm key={selectedDate} uid={uid} date={selectedDate} dayData={dayData} weighInData={weighInData} />
     </div>
   );
 }

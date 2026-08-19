@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, addDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.js';
 
 export const todayKey = (d = new Date()) => d.toISOString().slice(0, 10);
@@ -40,6 +40,10 @@ export function saveWeighIn(uid, weightKg, dateKey = todayKey()) {
 
 export function saveDay(uid, entry, dateKey = todayKey()) {
   return setDoc(dayRef(uid, dateKey), { ...entry, loggedAt: serverTimestamp() }, { merge: true });
+}
+
+export function requestTestNotification(uid) {
+  return addDoc(collection(db, 'users', uid, 'testRequests'), { requestedAt: serverTimestamp() });
 }
 
 // No orderBy/limit in the query itself — sorting client-side avoids needing

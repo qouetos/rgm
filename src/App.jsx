@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { subscribeAuth } from './firebase.js';
-import { watchProfile, watchRecentWeighIns, watchRecentDays, todayKey } from './lib/store.js';
+import { watchProfile, watchRecentWeighIns, watchRecentDays } from './lib/store.js';
 import { HomeIcon, EncodeIcon, HistoryIcon, SettingsIcon } from './icons.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Encode from './pages/Encode.jsx';
@@ -54,9 +54,6 @@ export default function App() {
     return <SignIn />;
   }
 
-  const todayDay = days.find((d) => d.date === todayKey());
-  const todayWeighIn = weighIns.find((w) => w.date === todayKey());
-
   return (
     <div className="app-shell">
       {dataError && (
@@ -65,7 +62,7 @@ export default function App() {
         </div>
       )}
       {tab === 'dashboard' && <Dashboard profile={profile} weighIns={weighIns} days={days} />}
-      {tab === 'encode' && <Encode uid={uid} todayDay={todayDay} todayWeighIn={todayWeighIn} />}
+      {tab === 'encode' && <Encode uid={uid} days={days} weighIns={weighIns} />}
       {tab === 'history' && <History weighIns={weighIns} days={days} />}
       {tab === 'settings' && <Settings uid={uid} email={authState.email} profile={profile} />}
 
