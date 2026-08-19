@@ -21,6 +21,7 @@ export default function App() {
   const [profile, setProfile] = useState(null);
   const [weighIns, setWeighIns] = useState([]);
   const [days, setDays] = useState([]);
+  const [dataError, setDataError] = useState('');
 
   useEffect(() => {
     return subscribeAuth((user) => setAuthState(user ?? 'signed-out'));
@@ -30,10 +31,11 @@ export default function App() {
 
   useEffect(() => {
     if (!uid) return;
+    const onError = (err) => setDataError(`${err.code || 'erreur'}: ${err.message}`);
     const unsubs = [
-      watchProfile(uid, setProfile),
-      watchRecentWeighIns(uid, 60, setWeighIns),
-      watchRecentDays(uid, 30, setDays),
+      watchProfile(uid, setProfile, onError),
+      watchRecentWeighIns(uid, 60, setWeighIns, onError),
+      watchRecentDays(uid, 30, setDays, onError),
     ];
     return () => unsubs.forEach((u) => u());
   }, [uid]);
@@ -57,10 +59,15 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {dataError && (
+        <div style={{ margin: '0 20px 12px', padding: '10px 14px', borderRadius: 12, background: 'oklch(94% 0.04 30)', color: 'oklch(40% 0.15 30)', fontSize: 12.5 }}>
+          Lecture des données impossible : {dataError}
+        </div>
+      )}
       {tab === 'dashboard' && <Dashboard profile={profile} weighIns={weighIns} days={days} />}
       {tab === 'encode' && <Encode uid={uid} todayDay={todayDay} todayWeighIn={todayWeighIn} />}
       {tab === 'history' && <History weighIns={weighIns} days={days} />}
-      {tab === 'settings' && <Settings uid={uid} profile={profile} />}
+      {tab === 'settings' && <Settings uid={uid} email={authState.email} profile={profile} />}
 
       <nav className="bottom-nav">
         {TABS.map(({ id, label, Icon }) => (

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { saveProfile } from '../lib/store.js';
 import { enableReminders } from '../lib/notifications.js';
 
-export default function Settings({ uid, profile }) {
+export default function Settings({ uid, email, profile }) {
   const [goalWeight, setGoalWeight] = useState(profile?.goalWeight ?? '');
   const [targetDate, setTargetDate] = useState(profile?.targetDate ?? '');
   const [reminderHour, setReminderHour] = useState(profile?.reminderHour ?? 19);
@@ -47,6 +47,12 @@ export default function Settings({ uid, profile }) {
   return (
     <div className="screen">
       <div style={{ fontSize: 20, fontWeight: 800 }}>Réglages</div>
+
+      <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div className="section-label">Compte</div>
+        <div style={{ fontSize: 13.5 }}>{email}</div>
+        <div style={{ fontSize: 11, color: 'var(--text-soft)', wordBreak: 'break-all' }}>uid: {uid}</div>
+      </div>
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div className="section-label">Objectif</div>

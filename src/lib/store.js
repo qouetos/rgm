@@ -32,8 +32,12 @@ export function saveProfile(uid, profile) {
   return setDoc(profileRef(uid), profile, { merge: true });
 }
 
-export function watchProfile(uid, cb) {
-  return onSnapshot(profileRef(uid), (snap) => cb(snap.exists() ? snap.data() : null));
+export function watchProfile(uid, cb, onError) {
+  return onSnapshot(
+    profileRef(uid),
+    (snap) => cb(snap.exists() ? snap.data() : null),
+    (err) => onError?.(err)
+  );
 }
 
 export function saveWeighIn(uid, weightKg, dateKey = todayKey()) {
@@ -48,17 +52,23 @@ export function saveDay(uid, entry, dateKey = todayKey()) {
   return setDoc(dayRef(uid, dateKey), { ...entry, loggedAt: serverTimestamp() }, { merge: true });
 }
 
-export function watchRecentWeighIns(uid, count, cb) {
+export function watchRecentWeighIns(uid, count, cb, onError) {
   const q = query(collection(db, 'users', uid, 'weighIns'), orderBy('__name__', 'desc'), limit(count));
-  return onSnapshot(q, (snap) => {
-    const rows = snap.docs.map((d) => ({ date: d.id, ...d.data() })).reverse();
-    cb(rows);
-  });
+  return onSnapshot(
+    q,
+    (snap) => {
+      const rows = snap.docs.map((d) => ({ date: d.id, ...d.data() })).reverse();
+      cb(rows);
+    },
+    (err) => onError?.(err)
+  );
 }
 
-export function watchRecentDays(uid, count, cb) {
+export function watchRecentDays(uid, count, cb, onError) {
   const q = query(collection(db, 'users', uid, 'days'), orderBy('__name__', 'desc'), limit(count));
-  return onSnapshot(q, (snap) => {
-    cb(snap.docs.map((d) => ({ date: d.id, ...d.data() })));
-  });
+  return onSnapshot(
+    q,
+    (snap) => cb(snap.docs.map((d) => ({ date: d.id, ...d.data() }))),
+    (err) => onError?.(err)
+  );
 }
