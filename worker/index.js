@@ -1,15 +1,19 @@
-import { initializeApp, cert } from 'firebase-admin/app';
+import { existsSync } from 'node:fs';
+import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 
 const TZ = 'Europe/Brussels';
 
-const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
-if (!serviceAccountJson) {
-  console.error('FIREBASE_SERVICE_ACCOUNT env var is missing — see worker/README for how to set it.');
+// GOOGLE_APPLICATION_CREDENTIALS points at a mounted file, not an env var
+// holding the JSON — keeps the credential off docker inspect / process
+// environment dumps. initializeApp() with no args picks it up automatically.
+const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+if (!credPath || !existsSync(credPath)) {
+  console.error(`Service account file not found at ${credPath || '(unset)'} — mount it and set GOOGLE_APPLICATION_CREDENTIALS.`);
   process.exit(1);
 }
-initializeApp({ credential: cert(JSON.parse(serviceAccountJson)) });
+initializeApp();
 
 const db = getFirestore();
 const messaging = getMessaging();

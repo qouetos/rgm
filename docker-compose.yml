@@ -13,7 +13,12 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      # Paste the full JSON from Firebase Console > Project settings >
-      # Service accounts > Generate new private key, as a single Coolify
-      # secret env var. This is a real credential — never commit it.
-      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase-service-account.json
+    volumes:
+      # In Coolify: Storages tab on this service > add a File mount at
+      # destination /run/secrets/firebase-service-account.json, paste the
+      # JSON from Firebase Console > Project settings > Service accounts >
+      # Generate new private key as its content. Coolify persists it on the
+      # host, outside git. Locally, this bind-mounts secrets/ instead —
+      # create that gitignored file yourself to test the worker.
+      - ./secrets/firebase-service-account.json:/run/secrets/firebase-service-account.json:ro
