@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
@@ -17,6 +17,12 @@ initializeApp();
 
 const db = getFirestore();
 const messaging = getMessaging();
+
+// The healthcheck just checks this file's mtime is recent — cheaper than
+// standing up an HTTP server for a process that has nothing to serve.
+const HEARTBEAT_FILE = '/tmp/heartbeat';
+const touchHeartbeat = () => writeFileSync(HEARTBEAT_FILE, String(Date.now()));
+touchHeartbeat();
 
 // Runs every hour; each user only gets pinged once, at their own
 // reminderHour, and only if they haven't already logged the day.
@@ -51,6 +57,7 @@ async function checkAndSendReminders() {
       }
     })
   );
+  touchHeartbeat();
 }
 
 function msUntilNextHour() {

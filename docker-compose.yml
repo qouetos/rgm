@@ -6,6 +6,12 @@ services:
     restart: unless-stopped
     ports:
       - "80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
   reminder:
     build:
@@ -22,3 +28,9 @@ services:
       # host, outside git. Locally, this bind-mounts secrets/ instead —
       # create that gitignored file yourself to test the worker.
       - ./secrets/firebase-service-account.json:/run/secrets/firebase-service-account.json:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(Date.now() - Number(require('fs').readFileSync('/tmp/heartbeat','utf8')) < 90*60*1000 ? 0 : 1)"]
+      interval: 5m
+      timeout: 5s
+      start_period: 30s
+      retries: 3
