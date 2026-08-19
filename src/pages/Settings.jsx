@@ -1,6 +1,13 @@
 import { useState } from 'react';
-import { saveProfile, requestTestNotification } from '../lib/store.js';
+import { saveProfile, requestTestNotification, watchTestRequest, deleteTestRequest } from '../lib/store.js';
 import { enableReminders } from '../lib/notifications.js';
+
+const TEST_STATUS_LABEL = {
+  sent: 'Envoyée ✓ — elle devrait arriver à l\'instant',
+  'no-token': "Le worker n'a pas trouvé de token — réactive les rappels",
+  error: "Le worker a essayé mais l'envoi a échoué",
+  timeout: "Aucune réponse du worker en 15s — a-t-il bien été redéployé ?",
+};
 
 export default function Settings({ uid, email, profile }) {
   const [goalWeight, setGoalWeight] = useState(profile?.goalWeight ?? '');
@@ -10,7 +17,8 @@ export default function Settings({ uid, email, profile }) {
   const [profileError, setProfileError] = useState('');
   const [notifStatus, setNotifStatus] = useState(profile?.fcmToken ? 'on' : 'off');
   const [notifError, setNotifError] = useState('');
-  const [testStatus, setTestStatus] = useState('idle'); // 'idle' | 'sending' | 'sent'
+  const [testStatus, setTestStatus] = useState('idle'); // 'idle' | 'sending' | one of TEST_STATUS_LABEL
+  const [testDetail, setTestDetail] = useState('');
 
   async function handleSaveProfile() {
     setSavingProfile(true);
@@ -103,19 +111,55 @@ export default function Settings({ uid, email, profile }) {
         {notifError && <div style={{ fontSize: 12.5, color: 'oklch(50% 0.15 30)' }}>{notifError}</div>}
 
         {notifStatus === 'on' && (
-          <button
-            className="chip"
-            style={{ textAlign: 'center', padding: '12px 14px' }}
-            disabled={testStatus === 'sending'}
-            onClick={async () => {
-              setTestStatus('sending');
-              await requestTestNotification(uid);
-              setTestStatus('sent');
-              setTimeout(() => setTestStatus('idle'), 3000);
-            }}
-          >
-            {testStatus === 'sent' ? 'Envoyée ✓ (arrive sous quelques secondes)' : testStatus === 'sending' ? 'Envoi...' : 'Tester une notification'}
-          </button>
+          <>
+            <button
+              className="chip"
+              style={{ textAlign: 'center', padding: '12px 14px' }}
+              disabled={testStatus === 'sending'}
+              onClick={async () => {
+                setTestStatus('sending');
+                setTestDetail('');
+                let requestId;
+                try {
+                  requestId = await requestTestNotification(uid);
+                } catch (err) {
+                  setTestStatus('idle');
+                  setTestDetail(`Écriture impossible — ${err.code || 'erreur'}: ${err.message}`);
+                  return;
+                }
+
+                let unsub = () => {};
+                const result = await new Promise((resolve) => {
+                  const timeout = setTimeout(() => resolve({ status: 'timeout' }), 15000);
+                  unsub = watchTestRequest(
+                    uid,
+                    requestId,
+                    (data) => {
+                      if (data?.status) {
+                        clearTimeout(timeout);
+                        resolve(data);
+                      }
+                    },
+                    (err) => {
+                      clearTimeout(timeout);
+                      resolve({ status: 'error', error: err.message });
+                    }
+                  );
+                });
+                unsub();
+                deleteTestRequest(uid, requestId).catch(() => {});
+
+                setTestStatus(result.status);
+                setTestDetail(result.error || '');
+                setTimeout(() => setTestStatus('idle'), 6000);
+              }}
+            >
+              {testStatus === 'sending' ? 'Envoi...' : testStatus !== 'idle' ? TEST_STATUS_LABEL[testStatus] : 'Tester une notification'}
+            </button>
+            {testDetail && (
+              <div style={{ fontSize: 12, color: 'oklch(50% 0.15 30)', wordBreak: 'break-word' }}>{testDetail}</div>
+            )}
+          </>
         )}
       </div>
     </div>

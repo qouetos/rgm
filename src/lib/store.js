@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, collection, addDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, collection, addDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase.js';
 
 export const todayKey = (d = new Date()) => d.toISOString().slice(0, 10);
@@ -42,8 +42,23 @@ export function saveDay(uid, entry, dateKey = todayKey()) {
   return setDoc(dayRef(uid, dateKey), { ...entry, loggedAt: serverTimestamp() }, { merge: true });
 }
 
-export function requestTestNotification(uid) {
-  return addDoc(collection(db, 'users', uid, 'testRequests'), { requestedAt: serverTimestamp() });
+export async function requestTestNotification(uid) {
+  const ref = await addDoc(collection(db, 'users', uid, 'testRequests'), { requestedAt: serverTimestamp() });
+  return ref.id;
+}
+
+// Watches one specific request doc so the caller can see whether the worker
+// ever picked it up, not just whether the write succeeded.
+export function watchTestRequest(uid, requestId, cb, onError) {
+  return onSnapshot(
+    doc(db, 'users', uid, 'testRequests', requestId),
+    (snap) => cb(snap.exists() ? snap.data() : null),
+    (err) => onError?.(err)
+  );
+}
+
+export function deleteTestRequest(uid, requestId) {
+  return deleteDoc(doc(db, 'users', uid, 'testRequests', requestId));
 }
 
 // No orderBy/limit in the query itself — sorting client-side avoids needing

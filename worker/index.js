@@ -60,36 +60,40 @@ async function checkAndSendReminders() {
   touchHeartbeat();
 }
 
-async function sendTestNotification(uid, fcmToken) {
-  try {
-    await messaging.send({
-      token: fcmToken,
-      notification: {
-        title: 'Test réussi',
-        body: 'Les notifications sont bien configurées.',
-      },
-      webpush: { fcmOptions: { link: '/' } },
-    });
-    console.log(`test notification sent to ${uid}`);
-  } catch (err) {
-    console.error(`test notification failed for ${uid}:`, err.message);
-  }
-}
-
 // A tap on "Tester les notifications" in Settings just creates one of these
 // docs — this listener reacts within seconds instead of waiting for the
 // next hourly tick, without needing to expose the worker on the network.
-db.collectionGroup('testRequests').onSnapshot((snap) => {
-  snap.docChanges().forEach(async (change) => {
-    if (change.type !== 'added') return;
-    const reqDoc = change.doc;
-    const uid = reqDoc.ref.parent.parent.id;
-    const userSnap = await db.collection('users').doc(uid).get();
-    const { fcmToken } = userSnap.data() || {};
-    if (fcmToken) await sendTestNotification(uid, fcmToken);
-    await reqDoc.ref.delete();
-  });
-});
+// The result is written back onto the doc (not deleted) so the client can
+// tell a picked-up-but-failed send apart from a request the worker never saw.
+db.collectionGroup('testRequests').onSnapshot(
+  (snap) => {
+    snap.docChanges().forEach(async (change) => {
+      if (change.type !== 'added') return;
+      const reqDoc = change.doc;
+      const uid = reqDoc.ref.parent.parent.id;
+      console.log(`test notification requested by ${uid}`);
+      try {
+        const userSnap = await db.collection('users').doc(uid).get();
+        const { fcmToken } = userSnap.data() || {};
+        if (!fcmToken) {
+          await reqDoc.ref.update({ status: 'no-token' });
+          return;
+        }
+        await messaging.send({
+          token: fcmToken,
+          notification: { title: 'Test réussi', body: 'Les notifications sont bien configurées.' },
+          webpush: { fcmOptions: { link: '/' } },
+        });
+        await reqDoc.ref.update({ status: 'sent' });
+        console.log(`test notification sent to ${uid}`);
+      } catch (err) {
+        await reqDoc.ref.update({ status: 'error', error: err.message }).catch(() => {});
+        console.error(`test notification failed for ${uid}:`, err.message);
+      }
+    });
+  },
+  (err) => console.error('testRequests listener failed:', err.message)
+);
 
 function msUntilNextHour() {
   const now = new Date();
