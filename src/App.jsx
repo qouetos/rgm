@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { subscribeAuth, signInWithGoogle } from './firebase.js';
+import { subscribeAuth, signInWithGoogle, isStandalone } from './firebase.js';
 import { watchProfile, watchRecentWeighIns, watchRecentDays, todayKey } from './lib/store.js';
 import { HomeIcon, EncodeIcon, HistoryIcon, SettingsIcon, TargetIcon } from './icons.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -63,20 +63,41 @@ export default function App() {
             <div style={{ fontSize: 20, fontWeight: 800 }}>Cap</div>
             <div style={{ fontSize: 13.5, color: 'var(--text-soft)', marginTop: 4 }}>Connecte-toi pour retrouver ton suivi.</div>
           </div>
-          <button
-            className="btn-primary"
-            style={{ width: 'auto', padding: '14px 28px' }}
-            onClick={() => {
-              setSignInError('');
-              signInWithGoogle().catch((err) => setSignInError(`${err.code || 'erreur'}: ${err.message}`));
-            }}
-          >
-            Se connecter avec Google
-          </button>
-          {signInError && (
-            <div style={{ fontSize: 12, color: 'oklch(50% 0.15 30)', maxWidth: 300, wordBreak: 'break-word' }}>
-              {signInError}
-            </div>
+
+          {isStandalone ? (
+            <>
+              <a
+                href={window.location.href}
+                target="_blank"
+                rel="noopener"
+                className="btn-primary"
+                style={{ width: 'auto', padding: '14px 28px', display: 'inline-block', textDecoration: 'none' }}
+              >
+                Ouvrir dans Safari pour te connecter
+              </a>
+              <div style={{ fontSize: 12.5, color: 'var(--text-soft)', maxWidth: 280 }}>
+                iOS ne permet pas de se connecter avec Google depuis l'app installée. Connecte-toi une fois dans Safari,
+                puis reviens sur cette icône — la session sera déjà là.
+              </div>
+            </>
+          ) : (
+            <>
+              <button
+                className="btn-primary"
+                style={{ width: 'auto', padding: '14px 28px' }}
+                onClick={() => {
+                  setSignInError('');
+                  signInWithGoogle().catch((err) => setSignInError(`${err.code || 'erreur'}: ${err.message}`));
+                }}
+              >
+                Se connecter avec Google
+              </button>
+              {signInError && (
+                <div style={{ fontSize: 12, color: 'oklch(50% 0.15 30)', maxWidth: 300, wordBreak: 'break-word' }}>
+                  {signInError}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

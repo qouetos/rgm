@@ -7,16 +7,20 @@ export default function Settings({ uid, profile }) {
   const [targetDate, setTargetDate] = useState(profile?.targetDate ?? '');
   const [reminderHour, setReminderHour] = useState(profile?.reminderHour ?? 19);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState('');
   const [notifStatus, setNotifStatus] = useState(profile?.fcmToken ? 'on' : 'off');
   const [notifError, setNotifError] = useState('');
 
   async function handleSaveProfile() {
     setSavingProfile(true);
+    setProfileError('');
     try {
       await saveProfile(uid, {
         goalWeight: goalWeight === '' ? null : Number(goalWeight),
         targetDate: targetDate || null,
       });
+    } catch (err) {
+      setProfileError(`${err.code || 'erreur'}: ${err.message}`);
     } finally {
       setSavingProfile(false);
     }
@@ -68,6 +72,9 @@ export default function Settings({ uid, profile }) {
         <button className="btn-primary" disabled={savingProfile} onClick={handleSaveProfile}>
           {savingProfile ? 'Enregistrement...' : 'Enregistrer l\'objectif'}
         </button>
+        {profileError && (
+          <div style={{ fontSize: 12, color: 'oklch(50% 0.15 30)', wordBreak: 'break-word' }}>{profileError}</div>
+        )}
       </div>
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

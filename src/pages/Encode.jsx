@@ -80,9 +80,11 @@ export default function Encode({ uid, todayDay, todayWeighIn }) {
   const [walked, setWalked] = useState(todayDay?.walked ?? false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   async function handleSave() {
     setSaving(true);
+    setSaveError('');
     const key = todayKey();
     try {
       if (weight !== '' && !Number.isNaN(Number(weight))) {
@@ -91,6 +93,8 @@ export default function Encode({ uid, todayDay, todayWeighIn }) {
       await saveDay(uid, { morning, lunch, snack, evening, eveningOther, walked }, key);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
+    } catch (err) {
+      setSaveError(`${err.code || 'erreur'}: ${err.message}`);
     } finally {
       setSaving(false);
     }
@@ -151,6 +155,11 @@ export default function Encode({ uid, todayDay, todayWeighIn }) {
         <div style={{ textAlign: 'center', fontSize: 12.5, color: 'var(--text-soft)' }}>
           Pas besoin d'être parfait, juste présent.
         </div>
+        {saveError && (
+          <div style={{ fontSize: 12, color: 'oklch(50% 0.15 30)', textAlign: 'center', wordBreak: 'break-word' }}>
+            {saveError}
+          </div>
+        )}
       </div>
     </div>
   );

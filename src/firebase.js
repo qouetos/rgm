@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithRedirect, signInWithPopup, getRedirectResult, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getMessaging, isSupported as messagingIsSupported } from 'firebase/messaging';
 
@@ -19,20 +19,19 @@ export const db = getFirestore(app);
 // Popup in a real browser tab — it stays in one origin/session so it isn't
 // affected by Firefox/Safari partitioning the storage that a full redirect
 // through accounts.google.com and the firebaseapp.com auth handler needs to
-// survive. Redirect only for the installed home-screen PWA, where iOS blocks
-// popups outright.
-const isStandalone =
+// survive. In the installed home-screen PWA, iOS isolates the standalone
+// context enough that even the redirect flow loops back signed-out — so we
+// don't attempt Google auth there at all; see openInSafari() below.
+export const isStandalone =
   typeof window !== 'undefined' &&
   (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches);
 
 export function signInWithGoogle() {
-  const provider = new GoogleAuthProvider();
-  return isStandalone ? signInWithRedirect(auth, provider) : signInWithPopup(auth, provider);
+  return signInWithPopup(auth, new GoogleAuthProvider());
 }
 export function signOutUser() {
   return signOut(auth);
 }
-getRedirectResult(auth).catch((err) => console.error('Google sign-in redirect failed:', err));
 
 export function subscribeAuth(cb) {
   return onAuthStateChanged(auth, cb);
