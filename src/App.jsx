@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { subscribeAuth, signInWithGoogle, isStandalone } from './firebase.js';
+import { subscribeAuth } from './firebase.js';
 import { watchProfile, watchRecentWeighIns, watchRecentDays, todayKey } from './lib/store.js';
-import { HomeIcon, EncodeIcon, HistoryIcon, SettingsIcon, TargetIcon } from './icons.jsx';
+import { HomeIcon, EncodeIcon, HistoryIcon, SettingsIcon } from './icons.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Encode from './pages/Encode.jsx';
 import History from './pages/History.jsx';
 import Settings from './pages/Settings.jsx';
+import SignIn from './pages/SignIn.jsx';
 
 const TABS = [
   { id: 'dashboard', label: 'Accueil', Icon: HomeIcon },
@@ -16,8 +17,6 @@ const TABS = [
 
 export default function App() {
   const [authState, setAuthState] = useState('loading'); // 'loading' | 'signed-out' | user
-  const [signInError, setSignInError] = useState('');
-  const [linkCopied, setLinkCopied] = useState(false);
   const [tab, setTab] = useState('dashboard');
   const [profile, setProfile] = useState(null);
   const [weighIns, setWeighIns] = useState([]);
@@ -50,62 +49,7 @@ export default function App() {
   }
 
   if (authState === 'signed-out') {
-    return (
-      <div className="app-shell">
-        <div className="screen" style={{ alignItems: 'center', justifyContent: 'center', gap: 20, textAlign: 'center' }}>
-          <div style={{
-            width: 64, height: 64, borderRadius: 18,
-            background: 'linear-gradient(160deg, oklch(66% 0.1 150) 0%, oklch(52% 0.09 150) 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <TargetIcon color="white" size={30} />
-          </div>
-          <div>
-            <div style={{ fontSize: 20, fontWeight: 800 }}>Cap</div>
-            <div style={{ fontSize: 13.5, color: 'var(--text-soft)', marginTop: 4 }}>Connecte-toi pour retrouver ton suivi.</div>
-          </div>
-
-          {isStandalone ? (
-            <>
-              <button
-                className="btn-primary"
-                style={{ width: 'auto', padding: '14px 28px' }}
-                onClick={() => {
-                  navigator.clipboard?.writeText(window.location.href);
-                  setLinkCopied(true);
-                  setTimeout(() => setLinkCopied(false), 2500);
-                }}
-              >
-                {linkCopied ? 'Lien copié ✓' : 'Copier le lien'}
-              </button>
-              <div style={{ fontSize: 12.5, color: 'var(--text-soft)', maxWidth: 280 }}>
-                iOS ne permet pas de se connecter avec Google depuis l'app installée, et n'ouvre pas Safari
-                automatiquement depuis ici. Copie le lien, ouvre Safari, colle-le, connecte-toi une fois — puis reviens
-                sur cette icône, la session sera déjà là.
-              </div>
-            </>
-          ) : (
-            <>
-              <button
-                className="btn-primary"
-                style={{ width: 'auto', padding: '14px 28px' }}
-                onClick={() => {
-                  setSignInError('');
-                  signInWithGoogle().catch((err) => setSignInError(`${err.code || 'erreur'}: ${err.message}`));
-                }}
-              >
-                Se connecter avec Google
-              </button>
-              {signInError && (
-                <div style={{ fontSize: 12, color: 'oklch(50% 0.15 30)', maxWidth: 300, wordBreak: 'break-word' }}>
-                  {signInError}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    );
+    return <SignIn />;
   }
 
   const todayDay = days.find((d) => d.date === todayKey());

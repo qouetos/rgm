@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getMessaging, isSupported as messagingIsSupported } from 'firebase/messaging';
 
@@ -16,18 +16,17 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Popup in a real browser tab — it stays in one origin/session so it isn't
-// affected by Firefox/Safari partitioning the storage that a full redirect
-// through accounts.google.com and the firebaseapp.com auth handler needs to
-// survive. In the installed home-screen PWA, iOS isolates the standalone
-// context enough that even the redirect flow loops back signed-out — so we
-// don't attempt Google auth there at all; see openInSafari() below.
-export const isStandalone =
-  typeof window !== 'undefined' &&
-  (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches);
-
-export function signInWithGoogle() {
-  return signInWithPopup(auth, new GoogleAuthProvider());
+// Plain email/password — a direct API call, no popup or redirect, so it
+// works identically in a normal tab and in the installed iOS home-screen
+// app (where Google's OAuth flow can't complete: no popups allowed there,
+// and the standalone context's storage is isolated from Safari's, so a
+// redirect through accounts.google.com never finds its way back to a
+// recognized session).
+export function signIn(email, password) {
+  return signInWithEmailAndPassword(auth, email, password);
+}
+export function signUp(email, password) {
+  return createUserWithEmailAndPassword(auth, email, password);
 }
 export function signOutUser() {
   return signOut(auth);
