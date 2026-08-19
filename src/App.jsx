@@ -16,6 +16,7 @@ const TABS = [
 
 export default function App() {
   const [authState, setAuthState] = useState('loading'); // 'loading' | 'signed-out' | user
+  const [signInError, setSignInError] = useState('');
   const [tab, setTab] = useState('dashboard');
   const [profile, setProfile] = useState(null);
   const [weighIns, setWeighIns] = useState([]);
@@ -62,9 +63,21 @@ export default function App() {
             <div style={{ fontSize: 20, fontWeight: 800 }}>Cap</div>
             <div style={{ fontSize: 13.5, color: 'var(--text-soft)', marginTop: 4 }}>Connecte-toi pour retrouver ton suivi.</div>
           </div>
-          <button className="btn-primary" style={{ width: 'auto', padding: '14px 28px' }} onClick={signInWithGoogle}>
+          <button
+            className="btn-primary"
+            style={{ width: 'auto', padding: '14px 28px' }}
+            onClick={() => {
+              setSignInError('');
+              signInWithGoogle().catch((err) => setSignInError(`${err.code || 'erreur'}: ${err.message}`));
+            }}
+          >
             Se connecter avec Google
           </button>
+          {signInError && (
+            <div style={{ fontSize: 12, color: 'oklch(50% 0.15 30)', maxWidth: 300, wordBreak: 'break-word' }}>
+              {signInError}
+            </div>
+          )}
         </div>
       </div>
     );
