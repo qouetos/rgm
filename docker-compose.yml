@@ -1,0 +1,19 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80"
+
+  reminder:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # Paste the full JSON from Firebase Console > Project settings >
+      # Service accounts > Generate new private key, as a single Coolify
+      # secret env var. This is a real credential — never commit it.
+      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
