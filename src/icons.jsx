@@ -58,3 +58,14 @@ export const CheckIcon = ({ color = 'currentColor', size = 18 }) => (
     <path d="M20 6 9 17l-5-5" />
   </svg>
 );
+
+export const CoachIcon = ({ color = 'var(--accent-dark)', size = 36 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+    <circle cx="12" cy="12.5" r="9" fill="var(--accent-soft)" stroke={color} strokeWidth="1.5" />
+    <circle cx="9" cy="11.5" r="1.15" fill={color} />
+    <circle cx="15" cy="11.5" r="1.15" fill={color} />
+    <path d="M8.5 15c1 1.1 6 1.1 7 0" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M12 3.3V2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    <circle cx="12" cy="1.4" r="1" fill={color} />
+  </svg>
+);

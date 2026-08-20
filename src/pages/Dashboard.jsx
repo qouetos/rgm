@@ -1,4 +1,6 @@
 import { TargetIcon, FlameIcon, CalendarIcon } from '../icons.jsx';
+import { todayKey } from '../lib/store.js';
+import Coach from '../components/Coach.jsx';
 
 function daysUntil(targetDate) {
   if (!targetDate) return null;
@@ -49,6 +51,7 @@ export default function Dashboard({ profile, weighIns, days }) {
   const remaining = daysUntil(profile?.targetDate);
   const streak = computeStreak(days);
   const today = new Date().toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' });
+  const todayData = days.find((d) => d.date === todayKey());
 
   return (
     <div className="screen">
@@ -56,6 +59,8 @@ export default function Dashboard({ profile, weighIns, days }) {
         <div style={{ fontSize: 13, color: 'var(--text-soft)', fontWeight: 500, textTransform: 'capitalize' }}>{today}</div>
         <div style={{ fontSize: 22, fontWeight: 800 }}>Bonjour</div>
       </div>
+
+      <Coach loggedToday={Boolean(todayData)} walked={Boolean(todayData?.walked)} streak={streak} delta={delta} />
 
       <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
