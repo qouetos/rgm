@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { subscribeAuth } from './firebase.js';
 import { watchProfile, watchRecentWeighIns, watchRecentDays } from './lib/store.js';
+import { watchForegroundMessages } from './lib/notifications.js';
 import { HomeIcon, EncodeIcon, HistoryIcon, SettingsIcon } from './icons.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Encode from './pages/Encode.jsx';
@@ -38,6 +39,23 @@ export default function App() {
       watchRecentDays(uid, 30, setDays, onError),
     ];
     return () => unsubs.forEach((u) => u());
+  }, [uid]);
+
+  // FCM delivers a push through the service worker's background handler
+  // ONLY when no client has the app focused — while the PWA is open (e.g.
+  // testing from Réglages), it comes through here instead. Without this,
+  // that case is silently dropped: no error, no notification.
+  useEffect(() => {
+    if (!uid) return;
+    let unsub = () => {};
+    let cancelled = false;
+    watchForegroundMessages((payload) => {
+      const { title, body } = payload.notification || {};
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification(title || 'Cap', { body, icon: '/icons/icon-192.png' });
+      }
+    }).then((fn) => { if (cancelled) fn(); else unsub = fn; });
+    return () => { cancelled = true; unsub(); };
   }, [uid]);
 
   if (authState === 'loading') {

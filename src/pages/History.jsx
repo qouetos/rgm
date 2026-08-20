@@ -1,4 +1,5 @@
 import { CheckIcon } from '../icons.jsx';
+import { computeDayKcal } from '../lib/foodDb.js';
 
 function WeightChart({ weighIns }) {
   const points = weighIns.filter((w) => typeof w.weight === 'number');
@@ -59,6 +60,7 @@ export default function History({ weighIns, days }) {
         {allDates.map((date) => {
           const logged = Boolean(dayByDate[date]);
           const w = weighInByDate[date]?.weight;
+          const kcal = computeDayKcal(dayByDate[date]);
           const label = new Date(date + 'T00:00:00').toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'short' });
           return (
             <div
@@ -81,7 +83,14 @@ export default function History({ weighIns, days }) {
                   {!logged && <div style={{ fontSize: 11.5, color: 'var(--text-soft)' }}>journée non encodée</div>}
                 </div>
               </div>
-              {w != null && <div style={{ fontSize: 15, fontWeight: 800 }}>{w} kg</div>}
+              {(w != null || kcal.total > 0) && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                  {w != null && <div style={{ fontSize: 15, fontWeight: 800 }}>{w} kg</div>}
+                  {kcal.total > 0 && (
+                    <div style={{ fontSize: 11, color: 'var(--text-soft)', fontWeight: 600 }}>≈ {kcal.total} kcal{kcal.hasUnknown ? '+' : ''}</div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}

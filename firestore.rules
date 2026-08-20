@@ -13,6 +13,9 @@ service cloud.firestore {
       match /testRequests/{requestId} {
         allow read, write: if request.auth != null && request.auth.uid == uid;
       }
+      match /customItems/{itemId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
     }
   }
 }

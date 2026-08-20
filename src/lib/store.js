@@ -12,6 +12,9 @@ export function weighInRef(uid, dateKey) {
 export function dayRef(uid, dateKey) {
   return doc(db, 'users', uid, 'days', dateKey);
 }
+export function customItemsRef(uid) {
+  return collection(db, 'users', uid, 'customItems');
+}
 
 export async function getProfile(uid) {
   const snap = await getDoc(profileRef(uid));
@@ -40,6 +43,33 @@ export function saveWeighIn(uid, weightKg, dateKey = todayKey()) {
 
 export function saveDay(uid, entry, dateKey = todayKey()) {
   return setDoc(dayRef(uid, dateKey), { ...entry, loggedAt: serverTimestamp() }, { merge: true });
+}
+
+// A user-grown catalog of dishes ("Mes plats") and drinks, usable from any
+// meal moment — kind is 'food' | 'drink'. Kept as one collection since both
+// are just labeled, optionally-caloried items picked from the same kind of
+// chip list.
+export function watchCustomItems(uid, cb, onError) {
+  return onSnapshot(
+    customItemsRef(uid),
+    (snap) => {
+      const rows = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+      cb(rows);
+    },
+    (err) => onError?.(err)
+  );
+}
+
+export async function saveCustomItem(uid, { kind, label, kcal }) {
+  const ref = await addDoc(customItemsRef(uid), {
+    kind,
+    label,
+    kcal: typeof kcal === 'number' && !Number.isNaN(kcal) ? kcal : null,
+    createdAt: serverTimestamp(),
+  });
+  return ref.id;
 }
 
 export async function requestTestNotification(uid) {
